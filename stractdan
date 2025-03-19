@@ -1,5 +1,5 @@
 //Сдал Осипов Артём Максимович 020303-АИСа-о24
-def find_max_gcd_pair(N):
+def max_nod(N):
     max_gcd = 1
     best_A = 1
     best_B = N - 1
@@ -25,7 +25,7 @@ def main():
         numbers.append(N)
     
     for N in numbers:
-        A, B = find_max_gcd_pair(N)
+        A, B = max_nod(N)
         print(f"Для числа {N} пара: {A} и {B}")
 
 if __name__ == "__main__":

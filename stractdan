@@ -1,0 +1,32 @@
+//Сдал Осипов Артём Максимович 020303-АИСа-о24
+def find_max_gcd_pair(N):
+    max_gcd = 1
+    best_A = 1
+    best_B = N - 1
+    for A in range(1, N):
+        B = N - A
+        current_gcd = 1
+        for i in range(1, min(A, B) + 1):
+            if A % i == 0 and B % i == 0:
+                current_gcd = i
+        if current_gcd > max_gcd:
+            max_gcd = current_gcd
+            best_A = A
+            best_B = B
+    return best_A, best_B
+
+def main():
+    print("Сколько чисел вы хотите проверить?")
+    count = int(input())
+    numbers = []
+    for i in range(count):
+        print(f"Введите число {i + 1}:")
+        N = int(input())
+        numbers.append(N)
+    
+    for N in numbers:
+        A, B = find_max_gcd_pair(N)
+        print(f"Для числа {N} пара: {A} и {B}")
+
+if __name__ == "__main__":
+    main()

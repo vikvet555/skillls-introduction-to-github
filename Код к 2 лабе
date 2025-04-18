@@ -1,0 +1,64 @@
+import numpy as np
+import time
+from numpy.linalg import norm
+def generate_matrix(size):
+    return np.random.rand(size, size) + 1j * np.random.rand(size, size)
+def naive_matrix_mult(A, B):
+    n = A.shape[0]
+    C = np.zeros((n, n), dtype=np.complex128)
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                C[i, j] += A[i, k] * B[k, j]
+    return C
+def block_matrix_mult(A, B, block_size=32):
+    n = A.shape[0]
+    C = np.zeros((n, n), dtype=np.complex128)
+    for i in range(0, n, block_size):
+        for j in range(0, n, block_size):
+            for k in range(0, n, block_size):
+                i_end = min(i + block_size, n)
+                j_end = min(j + block_size, n)
+                k_end = min(k + block_size, n)
+                C[i:i_end, j:j_end] += A[i:i_end, k:k_end] @ B[k:k_end, j:j_end]
+    return C
+def benchmark():
+    np.random.seed(42)
+    size = 1024
+    print(f"Генерация матриц {size}x{size}...")
+    A = generate_matrix(size)
+    B = generate_matrix(size)
+    complexity = 2 * size**3
+    print(f"\nТеоретическая сложность: {complexity / 1e6:.2f} MFlop")
+    methods = [
+        ("Наивный метод", naive_matrix_mult),
+        ("BLAS (np.dot)", np.dot),
+        ("Блочный метод", lambda a, b: block_matrix_mult(a, b, block_size=32))
+    ]
+    results = []
+    ref_result = None
+    for name, method in methods:
+        print(f"\nЗапуск {name}...")
+        start_time = time.time()
+        C = method(A, B)
+        elapsed = time.time() - start_time
+        if ref_result is None:
+            ref_result = C
+            error = 0.0
+        else:
+            error = norm(C - ref_result) / norm(ref_result)
+        mflops = complexity / elapsed / 1e6
+        results.append((name, elapsed, mflops, error))
+        print(f"Время: {elapsed:.4f} с")
+        print(f"Производительность: {mflops:.2f} MFlops")
+        print(f"Ошибка относительно эталона: {error:.2e}")
+    print("\n\nРезультаты:")
+    print("{:<15} {:<12} {:<15} {:<20}".format(
+        "Метод", "Время (с)", "Производительность", "Ошибка"))
+    print("-" * 60)
+    for name, elapsed, mflops, error in results:
+        print("{:<15} {:<12.4f} {:<15.2f} {:<20.2e}".format(
+            name, elapsed, mflops, error))
+if __name__ == "__main__":
+    benchmark()
+    print("Выполнил Осипов Артём Максимович 020303-АИСа-о24");

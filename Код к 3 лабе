@@ -1,0 +1,177 @@
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+def fold_ribbon_array(folds, rib_num):
+    stack = []
+    for fold in folds:
+        stack.append(fold)
+        stack.extend(['П' if x == 'З' else 'З' for x in stack[-2::-1]])
+    return stack[rib_num-1] if 1 <= rib_num <= len(stack) else None
+def fold_ribbon_linked_list(folds, rib_num):
+    head = None
+    length = 0
+    for fold in folds:
+        new_node = Node(fold)
+        new_node.next = head
+        head = new_node
+        length += 1
+        current = head.next
+        prev = head
+        while current:
+            inverted = Node('П' if current.value == 'З' else 'З')
+            prev.next = inverted
+            inverted.next = current
+            prev = current
+            current = current.next
+            length += 1
+    if rib_num < 1 or rib_num > length:
+        return None
+    current = head
+    for _ in range(rib_num-1):
+        current = current.next
+    return current.value
+def fold_ribbon_std(folds, rib_num):
+    from collections import deque
+    stack = deque()
+    for fold in folds:
+        stack.append(fold)
+        stack.extend(['П' if x == 'З' else 'З' for x in list(stack)[-2::-1]])
+    return stack[rib_num-1] if 1 <= rib_num <= len(stack) else None
+def reconstruct_folds_array(ribs):
+    if len(ribs) == 1:
+        return ''
+    if len(ribs) % 2 == 0:
+        return None
+    mid = len(ribs) // 2
+    last_fold = ribs[mid]
+    left = ribs[:mid]
+    right = ribs[mid+1:]
+    inverted_left = ['П' if x == 'З' else 'З' for x in reversed(left)]
+    if inverted_left != right:
+        return None
+    prev_folds = reconstruct_folds_array(left)
+    return prev_folds + last_fold if prev_folds is not None else None
+def reconstruct_folds_linked_list(head):
+    length = 0
+    current = head
+    while current:
+        length += 1
+        current = current.next
+    if length == 1:
+        return ''
+    if length % 2 == 0:
+        return None
+    mid_pos = length // 2
+    current = head
+    for _ in range(mid_pos):
+        current = current.next
+    last_fold = current.value
+    left_head = head
+    current = head
+    for _ in range(mid_pos - 1):
+        current = current.next
+    if current:
+        current.next = None
+def reconstruct_folds_linked_list(head):
+    length = 0
+    current = head
+    while current:
+        length += 1
+        current = current.next
+    if length == 1:
+        return ''
+    if length % 2 == 0:
+        return None
+    mid_pos = length // 2
+    current = head
+    for _ in range(mid_pos):
+        current = current.next
+    last_fold = current.value
+    left_head = head
+    prev = None
+    current = head
+    for _ in range(mid_pos):
+        prev = current
+        current = current.next
+    if prev:
+        prev.next = None
+    right_head = current.next if current else None
+    temp = left_head
+    while temp:
+        inverted_left.append('П' if temp.value == 'З' else 'З')
+        temp = temp.next
+    inverted_left.reverse()
+    temp_right = right_head
+    for i in range(len(inverted_left)):
+        if not temp_right or inverted_left[i] != temp_right.value:
+            return None
+        temp_right = temp_right.next
+    prev_folds = reconstruct_folds_linked_list(left_head)
+    return prev_folds + last_fold if prev_folds is not None else None
+    current = left_head
+    right_current = right_head
+    match = True
+    inverted_left = []
+    temp = left_head
+    while temp:
+        inverted_left.append('П' if temp.value == 'З' else 'З')
+        temp = temp.next
+    inverted_left.reverse()
+    temp_right = right_head
+    for i in range(len(inverted_left)):
+        if not temp_right or inverted_left[i] != temp_right.value:
+            match = False
+            break
+        temp_right = temp_right.next
+    if not match:
+        return None
+    prev_folds = reconstruct_folds_linked_list(left_head)
+    return prev_folds + last_fold if prev_folds is not None else None
+def reconstruct_folds_std(ribs):
+    from collections import deque
+    ribs = deque(ribs)
+    if len(ribs) == 1:
+        return ''
+    if len(ribs) % 2 == 0:
+        return None
+    mid_pos = len(ribs) // 2
+    last_fold = ribs[mid_pos]
+    left = deque(list(ribs)[:mid_pos])
+    right = deque(list(ribs)[mid_pos+1:])
+    inverted_left = deque(['П' if x == 'З' else 'З' for x in reversed(left)])
+    if inverted_left != right:
+        return None
+    prev_folds = reconstruct_folds_std(left)
+    return prev_folds + last_fold if prev_folds is not None else None
+def test_part_a():
+    print("Тестирование части А:")
+    folds = "ПЗП"
+    rib_num = 3
+    print(f"Последовательность сгибов: {folds}")
+    print(f"Номер ребра: {rib_num}")
+    print("\nРеализация через массив:")
+    print(fold_ribbon_array(folds, rib_num))
+    print("\nРеализация через связанный список:")
+    print(fold_ribbon_linked_list(folds, rib_num))
+    print("\nРеализация через стандартную библиотеку:")
+    print(fold_ribbon_std(folds, rib_num))
+def test_part_b():
+    print("\nТестирование части Б:")
+    ribs = "КОКПОКК"
+    print(f"Последовательность ребер: {ribs}")
+    print("\nРеализация через массив:")
+    print(reconstruct_folds_array(ribs))
+    print("\nРеализация через связанный список:")
+    head = None
+    for c in reversed(ribs):
+        new_node = Node(c)
+        new_node.next = head
+        head = new_node
+    print(reconstruct_folds_linked_list(head))
+    print("\nРеализация через стандартную библиотеку:")
+    print(reconstruct_folds_std(ribs))
+if __name__ == "__main__":
+    test_part_a()
+test_part_b()
+print("Выполнил Осипов Артём Максимович, 020303-АИСа-о24")
